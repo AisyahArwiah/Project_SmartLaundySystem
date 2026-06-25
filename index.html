@@ -1,0 +1,70 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.DAO;
+
+import com.model.User;
+import com.util.DBConnection;
+import java.sql.*;
+
+public class UserDAO {
+    
+    public boolean registerUser(User user) throws SQLException {
+        String userQuery = "INSERT INTO users (name, email, password, dob) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPassword());
+            ps.setDate(4, user.getDob());
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int userId = rs.getInt(1);
+                        // Grant 100 base welcome reward loyalty account points
+                        PreparedStatement psLoyalty = conn.prepareStatement(
+                            "INSERT INTO loyalty_accounts (userID, points) VALUES (?, 100)");
+                        psLoyalty.setInt(1, userId);
+                        psLoyalty.executeUpdate();
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public User validateLogin(String email, String password) throws SQLException {
+        String query = "SELECT * FROM users WHERE email = ? AND password = ?";
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, email);
+            ps.setString(2, password);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setUserID(rs.getInt("userID"));
+                    user.setName(rs.getString("name"));
+                    user.setEmail(rs.getString("email"));
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
+
+    public int getUserPoints(int userID) throws SQLException {
+        String query = "SELECT points FROM loyalty_accounts WHERE userID = ?";
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, userID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("points");
+            }
+        }
+        return 0;
+    }
+}

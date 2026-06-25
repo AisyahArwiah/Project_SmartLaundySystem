@@ -1,0 +1,26 @@
+package com.model;
+
+import java.sql.Timestamp;
+
+public class Payment {
+    private String paymentID;
+    private String transactionID;
+    private String paymentMethod;
+    private String paymentStatus;
+    private Timestamp paidAt;
+
+    public String getPaymentID() { return paymentID; }
+    public void setPaymentID(String paymentID) { this.paymentID = paymentID; }
+
+    public String getTransactionID() { return transactionID; }
+    public void setTransactionID(String transactionID) { this.transactionID = transactionID; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
+    public Timestamp getPaidAt() { return paidAt; }
+    public void setPaidAt(Timestamp paidAt) { this.paidAt = paidAt; }
+}
